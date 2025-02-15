@@ -37,3 +37,7 @@ func (p Point) MulF(t float64) Point {
 func (p Point) DivF(t float64) Point {
 	return p.MulF(1 / t)
 }
+
+func (p Point) Dot(p2 Point) float64 {
+	return p.vec.Dot(p2.vec)
+}
