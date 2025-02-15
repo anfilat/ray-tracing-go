@@ -11,7 +11,11 @@ type Color struct {
 	vec vec3.Vec3
 }
 
-func New(r, g, b float64) Color {
+func New(vec vec3.Vec3) Color {
+	return Color{vec: vec}
+}
+
+func NewRGB(r, g, b float64) Color {
 	return Color{vec: vec3.New(r, g, b)}
 }
 
@@ -29,6 +33,14 @@ func (c Color) G() float64 {
 
 func (c Color) B() float64 {
 	return c.vec.Z()
+}
+
+func Add(v1, v2 Color) Color {
+	return New(vec3.Add(v1.vec, v2.vec))
+}
+
+func MulF(v Color, t float64) Color {
+	return New(vec3.MulF(v.vec, t))
 }
 
 func WriteColor(w io.Writer, pixelColor Color) {
