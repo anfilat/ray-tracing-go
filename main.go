@@ -31,23 +31,23 @@ func main() {
 	viewportV := point.NewXYZ(0, -viewportHeight, 0)
 
 	// Calculate the horizontal and vertical delta vectors from pixel to pixel.
-	pixelDeltaU := point.DivF(viewportU, imageWidth)
-	pixelDeltaV := point.DivF(viewportV, float64(imageHeight))
+	pixelDeltaU := viewportU.DivF(imageWidth)
+	pixelDeltaV := viewportV.DivF(float64(imageHeight))
 
 	// Calculate the location of the upper left pixel.
-	viewportUpperLeft := point.Sub(
-		point.Sub(
-			point.Sub(
-				cameraCenter,
-				point.NewXYZ(0, 0, focalLength),
-			),
-			point.DivF(viewportU, 2),
-		),
-		point.DivF(viewportV, 2),
+	viewportUpperLeft := cameraCenter.Sub(
+		point.NewXYZ(0, 0, focalLength),
+	).Sub(
+		viewportU.DivF(2),
+	).Sub(
+		viewportV.DivF(2),
 	)
-	pixel00Loc := point.Add(
+	pixel00Loc := pixelDeltaU.Add(
+		pixelDeltaV,
+	).MulF(
+		0.5,
+	).Add(
 		viewportUpperLeft,
-		point.MulF(point.Add(pixelDeltaU, pixelDeltaV), 0.5),
 	)
 
 	// Render
@@ -57,18 +57,16 @@ func main() {
 	for y := 0; y < imageHeight; y++ {
 		fmt.Fprintf(os.Stderr, "\rScanlines remaining: %d ", imageHeight-y)
 		for x := 0; x < imageWidth; x++ {
-			pixelCenter := point.Add(
-				pixel00Loc,
-				point.Add(
-					point.MulF(pixelDeltaU, float64(x)),
-					point.MulF(pixelDeltaV, float64(y)),
-				),
+			pixelCenter := pixel00Loc.Add(
+				pixelDeltaU.MulF(float64(x)),
+			).Add(
+				pixelDeltaV.MulF(float64(y)),
 			)
-			rayDirection := point.Sub(pixelCenter, cameraCenter)
+			rayDirection := pixelCenter.Sub(cameraCenter)
 			r := ray.New(cameraCenter, rayDirection)
 
 			pixelColor := rayColor(r)
-			color.WriteColor(os.Stdout, pixelColor)
+			pixelColor.Write(os.Stdout)
 		}
 	}
 
@@ -79,8 +77,7 @@ func rayColor(r ray.Ray) color.Color {
 	unitDirection := r.Dir().UnitVector()
 	a := 0.5 * (unitDirection.Y() + 1.0)
 
-	return color.Add(
-		color.MulF(color.NewRGB(1, 1, 1), 1-a),
-		color.MulF(color.NewRGB(0.5, 0.7, 1), a),
+	return color.NewRGB(1, 1, 1).MulF(1 - a).Add(
+		color.NewRGB(0.5, 0.7, 1).MulF(a),
 	)
 }

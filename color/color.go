@@ -35,18 +35,19 @@ func (c Color) B() float64 {
 	return c.vec.Z()
 }
 
-func Add(v1, v2 Color) Color {
-	return New(vec3.Add(v1.vec, v2.vec))
+func (c Color) Add(c2 Color) Color {
+	return New(c.vec.Add(c2.vec))
 }
 
-func MulF(v Color, t float64) Color {
-	return New(vec3.MulF(v.vec, t))
+func (c Color) MulF(t float64) Color {
+	return New(c.vec.MulF(t))
 }
 
-func WriteColor(w io.Writer, pixelColor Color) {
-	rByte := int(255.999 * pixelColor.R())
-	gByte := int(255.999 * pixelColor.G())
-	bByte := int(255.999 * pixelColor.B())
-
-	fmt.Fprintf(w, "%d %d %d\n", rByte, gByte, bByte)
+func (c Color) Write(w io.Writer) {
+	fmt.Fprintf(w,
+		"%d %d %d\n",
+		int(255.999*c.R()),
+		int(255.999*c.G()),
+		int(255.999*c.B()),
+	)
 }

@@ -20,5 +20,9 @@ func (r Ray) Dir() point.Point {
 }
 
 func (r Ray) At(t float64) point.Point {
-	return point.New(point.Add(r.origin, point.MulF(r.dir, t)).Vec())
+	return point.New(
+		r.origin.Add(
+			r.dir.MulF(t),
+		).Vec(),
+	)
 }

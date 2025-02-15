@@ -22,18 +22,18 @@ func (p Point) UnitVector() vec3.Vec3 {
 	return p.vec.UnitVector()
 }
 
-func Add(v1, v2 Point) Point {
-	return New(vec3.Add(v1.vec, v2.vec))
+func (p Point) Add(p2 Point) Point {
+	return New(p.vec.Add(p2.vec))
 }
 
-func Sub(v1, v2 Point) Point {
-	return New(vec3.Sub(v1.vec, v2.vec))
+func (p Point) Sub(p2 Point) Point {
+	return New(p.vec.Sub(p2.vec))
 }
 
-func MulF(v Point, t float64) Point {
-	return New(vec3.MulF(v.vec, t))
+func (p Point) MulF(t float64) Point {
+	return New(p.vec.MulF(t))
 }
 
-func DivF(v Point, t float64) Point {
-	return MulF(v, 1/t)
+func (p Point) DivF(t float64) Point {
+	return p.MulF(1 / t)
 }

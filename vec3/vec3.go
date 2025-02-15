@@ -38,35 +38,35 @@ func (v Vec3) Length() float64 {
 }
 
 func (v Vec3) UnitVector() Vec3 {
-	return DivF(v, v.Length())
+	return v.DivF(v.Length())
 }
 
 func (v Vec3) Print() {
 	fmt.Printf("%g %g %g", v.e[0], v.e[1], v.e[2])
 }
 
-func Add(v1, v2 Vec3) Vec3 {
-	return Vec3{e: [3]float64{v1.e[0] + v2.e[0], v1.e[1] + v2.e[1], v1.e[2] + v2.e[2]}}
+func (v Vec3) Add(v2 Vec3) Vec3 {
+	return Vec3{e: [3]float64{v.e[0] + v2.e[0], v.e[1] + v2.e[1], v.e[2] + v2.e[2]}}
 }
 
-func Sub(v1, v2 Vec3) Vec3 {
-	return Vec3{e: [3]float64{v1.e[0] - v2.e[0], v1.e[1] - v2.e[1], v1.e[2] - v2.e[2]}}
+func (v Vec3) Sub(v2 Vec3) Vec3 {
+	return Vec3{e: [3]float64{v.e[0] - v2.e[0], v.e[1] - v2.e[1], v.e[2] - v2.e[2]}}
 }
 
-func Mul(v1, v2 Vec3) Vec3 {
-	return Vec3{e: [3]float64{v1.e[0] * v2.e[0], v1.e[1] * v2.e[1], v1.e[2] * v2.e[2]}}
+func (v Vec3) Mul(v2 Vec3) Vec3 {
+	return Vec3{e: [3]float64{v.e[0] * v2.e[0], v.e[1] * v2.e[1], v.e[2] * v2.e[2]}}
 }
 
-func Inv(v Vec3) Vec3 {
-	return Vec3{e: [3]float64{-v.e[0], -v.e[1], -v.e[2]}}
-}
-
-func MulF(v Vec3, t float64) Vec3 {
+func (v Vec3) MulF(t float64) Vec3 {
 	return Vec3{e: [3]float64{v.e[0] * t, v.e[1] * t, v.e[2] * t}}
 }
 
-func DivF(v Vec3, t float64) Vec3 {
-	return MulF(v, 1/t)
+func (v Vec3) DivF(t float64) Vec3 {
+	return v.MulF(1 / t)
+}
+
+func (v Vec3) Inv() Vec3 {
+	return Vec3{e: [3]float64{-v.e[0], -v.e[1], -v.e[2]}}
 }
 
 func Dot(v1, v2 Vec3) float64 {
