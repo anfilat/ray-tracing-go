@@ -16,7 +16,7 @@ func writeImage() {
 	for y := 0; y < height; y++ {
 		fmt.Fprintf(os.Stderr, "\rScanlines remaining: %d ", height-y)
 		for x := 0; x < width; x++ {
-			pixelColor := color.New(float64(x)/float64(width-1), float64(y)/float64(height-1), 0.0)
+			pixelColor := color.New(float64(x)/float64(width-1), float64(y)/float64(height-1), 0)
 			color.WriteColor(os.Stdout, pixelColor)
 		}
 	}
