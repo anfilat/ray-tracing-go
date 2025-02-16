@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"os"
 
 	"github.com/anfilat/ray-tracing-go.git/color"
+	"github.com/anfilat/ray-tracing-go.git/common"
+	"github.com/anfilat/ray-tracing-go.git/hitTable"
 	"github.com/anfilat/ray-tracing-go.git/point"
 	"github.com/anfilat/ray-tracing-go.git/ray"
+	"github.com/anfilat/ray-tracing-go.git/sphere"
 )
 
 func main() {
@@ -20,6 +22,11 @@ func main() {
 	if imageHeight < 1 {
 		imageHeight = 1
 	}
+
+	// World
+	world := hitTable.NewList()
+	world.Add(sphere.New(point.NewXYZ(0, 0, -1), 0.5))
+	world.Add(sphere.New(point.NewXYZ(0, -100.5, -1), 100))
 
 	// Camera
 	const focalLength = 1.0
@@ -66,7 +73,7 @@ func main() {
 			rayDirection := pixelCenter.Sub(cameraCenter)
 			r := ray.New(cameraCenter, rayDirection)
 
-			pixelColor := rayColor(r)
+			pixelColor := rayColor(r, world)
 			pixelColor.Write(os.Stdout)
 		}
 	}
@@ -74,32 +81,19 @@ func main() {
 	fmt.Fprint(os.Stderr, "\rDone                          \n")
 }
 
-func rayColor(r ray.Ray) color.Color {
-	t := hitSphere(point.NewXYZ(0, 0, -1), 0.5, r)
-	if t > 0 {
-		N := r.At(t).Sub(
-			point.NewXYZ(0, 0, -1),
-		).UnitVector()
-		return color.NewRGB(N.X()+1, N.Y()+1, N.Z()+1).MulF(0.5)
+func rayColor(r ray.Ray, world hitTable.List) color.Color {
+	rec := &hitTable.HitRecord{}
+	if world.Hit(r, 0, common.Infinity, rec) {
+		return color.New(
+			rec.Normal.Vec().Add(
+				color.NewRGB(1, 1, 1).Vec(),
+			).MulF(0.5),
+		)
 	}
 
 	unitDirection := r.Dir().UnitVector()
 	a := 0.5 * (unitDirection.Y() + 1.0)
-
 	return color.NewRGB(1, 1, 1).MulF(1 - a).Add(
 		color.NewRGB(0.5, 0.7, 1).MulF(a),
 	)
-}
-
-func hitSphere(center point.Point, radius float64, r ray.Ray) float64 {
-	oc := center.Sub(r.Origin())
-	a := r.Dir().LengthSquared()
-	h := r.Dir().Dot(oc)
-	c := oc.LengthSquared() - radius*radius
-	discriminant := h*h - a*c
-
-	if discriminant < 0 {
-		return -1
-	}
-	return (h - math.Sqrt(discriminant)) / a
 }

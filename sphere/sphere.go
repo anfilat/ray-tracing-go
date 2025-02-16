@@ -1,10 +1,11 @@
 package sphere
 
 import (
-	hitTable "github.com/anfilat/ray-tracing-go.git/hit_table"
+	"math"
+
+	"github.com/anfilat/ray-tracing-go.git/hitTable"
 	"github.com/anfilat/ray-tracing-go.git/point"
 	"github.com/anfilat/ray-tracing-go.git/ray"
-	"math"
 )
 
 type Sphere struct {

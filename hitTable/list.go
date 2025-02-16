@@ -6,8 +6,8 @@ type List struct {
 	objects []HitTable
 }
 
-func NewList() *List {
-	return &List{}
+func NewList() List {
+	return List{}
 }
 
 func (l *List) Add(object HitTable) {
@@ -27,7 +27,7 @@ func (l *List) Hit(r ray.Ray, rayTMin, rayTMax float64, rec *HitRecord) bool {
 		if object.Hit(r, rayTMin, closestSoFar, tempRec) {
 			hitAnything = true
 			closestSoFar = tempRec.T
-			rec = tempRec
+			rec.Copy(tempRec)
 		}
 	}
 
