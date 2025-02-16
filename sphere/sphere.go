@@ -3,8 +3,8 @@ package sphere
 import (
 	"math"
 
-	"github.com/anfilat/ray-tracing-go.git/common"
 	"github.com/anfilat/ray-tracing-go.git/hitTable"
+	"github.com/anfilat/ray-tracing-go.git/interval"
 	"github.com/anfilat/ray-tracing-go.git/point"
 	"github.com/anfilat/ray-tracing-go.git/ray"
 )
@@ -21,7 +21,7 @@ func New(center point.Point, radius float64) Sphere {
 	}
 }
 
-func (s Sphere) Hit(r ray.Ray, rayT common.Interval, rec *hitTable.HitRecord) bool {
+func (s Sphere) Hit(r ray.Ray, rayT interval.Interval, rec *hitTable.HitRecord) bool {
 	oc := s.center.Sub(r.Origin())
 	a := r.Dir().LengthSquared()
 	h := r.Dir().Dot(oc)

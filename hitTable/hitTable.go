@@ -1,7 +1,7 @@
 package hitTable
 
 import (
-	"github.com/anfilat/ray-tracing-go.git/common"
+	"github.com/anfilat/ray-tracing-go.git/interval"
 	"github.com/anfilat/ray-tracing-go.git/point"
 	"github.com/anfilat/ray-tracing-go.git/ray"
 )
@@ -33,5 +33,5 @@ func (h *HitRecord) SetFaceNormal(r ray.Ray, outwardNormal point.Point) {
 }
 
 type HitTable interface {
-	Hit(r ray.Ray, rayT common.Interval, rec *HitRecord) bool
+	Hit(r ray.Ray, rayT interval.Interval, rec *HitRecord) bool
 }
