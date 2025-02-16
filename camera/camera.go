@@ -129,7 +129,7 @@ func (c *Camera) rayColor(r ray.Ray, depth int, world hitTable.HitTable) color.C
 	rec := &hitTable.HitRecord{}
 
 	if world.Hit(r, interval.New(0.001, math.Inf(1)), rec) {
-		direction := vec3.RandomOnHemisphere(rec.Normal)
+		direction := rec.Normal.Add(vec3.RandomUnitVector())
 		return c.rayColor(ray.New(rec.P, direction), depth-1, world).MulF(0.5)
 	}
 
