@@ -6,9 +6,22 @@ import (
 )
 
 type HitRecord struct {
-	P      point.Point
-	Normal point.Point
-	T      float64
+	P         point.Point
+	Normal    point.Point
+	T         float64
+	FrontFace bool
+}
+
+func (h *HitRecord) SetFaceNormal(r ray.Ray, outwardNormal point.Point) {
+	// Sets the hit record normal vector.
+	// NOTE: the parameter `outward_normal` is assumed to have unit length.
+
+	h.FrontFace = r.Dir().Dot(outwardNormal) < 0
+	if h.FrontFace {
+		h.Normal = outwardNormal
+	} else {
+		h.Normal = outwardNormal.Inv()
+	}
 }
 
 type HitTable interface {
