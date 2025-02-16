@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/anfilat/ray-tracing-go.git/color"
+	"github.com/anfilat/ray-tracing-go.git/common"
 	"github.com/anfilat/ray-tracing-go.git/hitTable"
 	"github.com/anfilat/ray-tracing-go.git/interval"
 	"github.com/anfilat/ray-tracing-go.git/point"
@@ -14,20 +15,23 @@ import (
 )
 
 type Camera struct {
-	AspectRatio float64 // Ratio of image width over height
-	ImageWidth  int     // Rendered image width in pixel count
+	AspectRatio     float64 // Ratio of image width over height
+	ImageWidth      int     // Rendered image width in pixel count
+	SamplesPerPixel int     // Count of random samples for each pixel
 
-	imageHeight int         // Rendered image height
-	center      point.Point // Camera center
-	pixel00Loc  point.Point // Location of pixel 0, 0
-	pixelDeltaU vec3.Vec3   // Offset to pixel to the right
-	pixelDeltaV vec3.Vec3   // Offset to pixel below
+	imageHeight       int         // Rendered image height
+	pixelSamplesScale float64     // Color scale factor for a sum of pixel samples
+	center            point.Point // Camera center
+	pixel00Loc        point.Point // Location of pixel 0, 0
+	pixelDeltaU       vec3.Vec3   // Offset to pixel to the right
+	pixelDeltaV       vec3.Vec3   // Offset to pixel below
 }
 
 func New() *Camera {
 	return &Camera{
-		AspectRatio: 1,
-		ImageWidth:  100,
+		AspectRatio:     1,
+		ImageWidth:      100,
+		SamplesPerPixel: 10,
 	}
 }
 
@@ -39,16 +43,12 @@ func (c *Camera) Render(world hitTable.HitTable) {
 	for y := 0; y < c.imageHeight; y++ {
 		fmt.Fprintf(os.Stderr, "\rScanlines remaining: %d ", c.imageHeight-y)
 		for x := 0; x < c.ImageWidth; x++ {
-			pixelCenter := c.pixel00Loc.Add(
-				c.pixelDeltaU.MulF(float64(x)),
-			).Add(
-				c.pixelDeltaV.MulF(float64(y)),
-			)
-			rayDirection := pixelCenter.Sub(c.center)
-			r := ray.New(c.center, rayDirection)
-
-			pixelColor := c.rayColor(r, world)
-			color.Write(os.Stdout, pixelColor)
+			pixelColor := color.NewRGB(0, 0, 0)
+			for sample := 0; sample < c.SamplesPerPixel; sample++ {
+				r := c.getRay(x, y)
+				pixelColor = pixelColor.Add(c.rayColor(r, world))
+			}
+			color.Write(os.Stdout, pixelColor.MulF(c.pixelSamplesScale))
 		}
 	}
 
@@ -60,6 +60,8 @@ func (c *Camera) initialize() {
 	if c.imageHeight < 1 {
 		c.imageHeight = 1
 	}
+
+	c.pixelSamplesScale = 1 / float64(c.SamplesPerPixel)
 
 	c.center = point.NewXYZ(0, 0, 0)
 
@@ -92,6 +94,28 @@ func (c *Camera) initialize() {
 	).Add(
 		viewportUpperLeft,
 	)
+}
+
+func (c *Camera) getRay(x, y int) ray.Ray {
+	// Construct a camera ray originating from the origin and directed at randomly sampled
+	// point around the pixel location i, j.
+
+	offset := c.sampleSquare()
+	pixelSample := c.pixel00Loc.Add(
+		c.pixelDeltaU.MulF(float64(x) + offset.X()),
+	).Add(
+		c.pixelDeltaV.MulF(float64(y) + offset.Y()),
+	)
+
+	rayOrigin := c.center
+	rayDirection := pixelSample.Sub(rayOrigin)
+
+	return ray.New(rayOrigin, rayDirection)
+}
+
+func (c *Camera) sampleSquare() vec3.Vec3 {
+	// Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
+	return vec3.New(common.Random()-0.5, common.Random()-0.5, 0)
 }
 
 func (c *Camera) rayColor(r ray.Ray, world hitTable.HitTable) color.Color {

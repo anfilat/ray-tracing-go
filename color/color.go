@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/anfilat/ray-tracing-go.git/interval"
 	"github.com/anfilat/ray-tracing-go.git/vec3"
 )
 
@@ -18,10 +19,15 @@ func NewRGB(r, g, b float64) Color {
 }
 
 func Write(w io.Writer, pixelColor Color) {
-	fmt.Fprintf(w,
-		"%d %d %d\n",
-		int(255.999*pixelColor.X()),
-		int(255.999*pixelColor.Y()),
-		int(255.999*pixelColor.Z()),
-	)
+	r := pixelColor.X()
+	g := pixelColor.Y()
+	b := pixelColor.Z()
+
+	// Translate the [0,1] component values to the byte range [0,255].
+	intensity := interval.New(0.000, 0.999)
+	rByte := int(256 * intensity.Clamp(r))
+	gByte := int(256 * intensity.Clamp(g))
+	bByte := int(256 * intensity.Clamp(b))
+
+	fmt.Fprintf(w, "%d %d %d\n", rByte, gByte, bByte)
 }
