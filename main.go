@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/anfilat/ray-tracing-go.git/color"
+	"github.com/anfilat/ray-tracing-go.git/common"
 	"github.com/anfilat/ray-tracing-go.git/hitTable"
 	"github.com/anfilat/ray-tracing-go.git/point"
 	"github.com/anfilat/ray-tracing-go.git/ray"
@@ -83,7 +84,7 @@ func main() {
 
 func rayColor(r ray.Ray, world hitTable.List) color.Color {
 	rec := &hitTable.HitRecord{}
-	if world.Hit(r, 0, math.Inf(0), rec) {
+	if world.Hit(r, common.NewInterval(0, math.Inf(1)), rec) {
 		return color.New(
 			rec.Normal.Add(
 				color.NewRGB(1, 1, 1),

@@ -1,6 +1,9 @@
 package hitTable
 
-import "github.com/anfilat/ray-tracing-go.git/ray"
+import (
+	"github.com/anfilat/ray-tracing-go.git/common"
+	"github.com/anfilat/ray-tracing-go.git/ray"
+)
 
 type List struct {
 	objects []HitTable
@@ -18,13 +21,13 @@ func (l *List) Clear() {
 	l.objects = l.objects[:0]
 }
 
-func (l *List) Hit(r ray.Ray, rayTMin, rayTMax float64, rec *HitRecord) bool {
+func (l *List) Hit(r ray.Ray, rayT common.Interval, rec *HitRecord) bool {
 	tempRec := &HitRecord{}
 	hitAnything := false
-	closestSoFar := rayTMax
+	closestSoFar := rayT.Max
 
 	for _, object := range l.objects {
-		if object.Hit(r, rayTMin, closestSoFar, tempRec) {
+		if object.Hit(r, common.NewInterval(rayT.Min, closestSoFar), tempRec) {
 			hitAnything = true
 			closestSoFar = tempRec.T
 			rec.Copy(tempRec)
