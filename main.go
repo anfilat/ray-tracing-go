@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 
 	"github.com/anfilat/ray-tracing-go.git/color"
-	"github.com/anfilat/ray-tracing-go.git/common"
 	"github.com/anfilat/ray-tracing-go.git/hitTable"
 	"github.com/anfilat/ray-tracing-go.git/point"
 	"github.com/anfilat/ray-tracing-go.git/ray"
@@ -74,7 +74,7 @@ func main() {
 			r := ray.New(cameraCenter, rayDirection)
 
 			pixelColor := rayColor(r, world)
-			pixelColor.Write(os.Stdout)
+			color.Write(os.Stdout, pixelColor)
 		}
 	}
 
@@ -83,11 +83,13 @@ func main() {
 
 func rayColor(r ray.Ray, world hitTable.List) color.Color {
 	rec := &hitTable.HitRecord{}
-	if world.Hit(r, 0, common.Infinity, rec) {
+	if world.Hit(r, 0, math.Inf(0), rec) {
 		return color.New(
-			rec.Normal.Vec().Add(
-				color.NewRGB(1, 1, 1).Vec(),
-			).MulF(0.5),
+			rec.Normal.Add(
+				color.NewRGB(1, 1, 1),
+			).MulF(
+				0.5,
+			),
 		)
 	}
 
