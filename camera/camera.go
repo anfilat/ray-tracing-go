@@ -18,6 +18,7 @@ type Camera struct {
 	AspectRatio     float64 // Ratio of image width over height
 	ImageWidth      int     // Rendered image width in pixel count
 	SamplesPerPixel int     // Count of random samples for each pixel
+	MaxDepth        int     // Maximum number of ray bounces into scene
 
 	imageHeight       int         // Rendered image height
 	pixelSamplesScale float64     // Color scale factor for a sum of pixel samples
@@ -32,6 +33,7 @@ func New() *Camera {
 		AspectRatio:     1,
 		ImageWidth:      100,
 		SamplesPerPixel: 10,
+		MaxDepth:        10,
 	}
 }
 
@@ -46,7 +48,7 @@ func (c *Camera) Render(world hitTable.HitTable) {
 			pixelColor := color.NewRGB(0, 0, 0)
 			for sample := 0; sample < c.SamplesPerPixel; sample++ {
 				r := c.getRay(x, y)
-				pixelColor = pixelColor.Add(c.rayColor(r, world))
+				pixelColor = pixelColor.Add(c.rayColor(r, c.MaxDepth, world))
 			}
 			color.Write(os.Stdout, pixelColor.MulF(c.pixelSamplesScale))
 		}
@@ -118,11 +120,17 @@ func (c *Camera) sampleSquare() vec3.Vec3 {
 	return vec3.New(common.Random()-0.5, common.Random()-0.5, 0)
 }
 
-func (c *Camera) rayColor(r ray.Ray, world hitTable.HitTable) color.Color {
+func (c *Camera) rayColor(r ray.Ray, depth int, world hitTable.HitTable) color.Color {
+	// If we've exceeded the ray bounce limit, no more light is gathered.
+	if depth <= 0 {
+		return color.NewRGB(0, 0, 0)
+	}
+
 	rec := &hitTable.HitRecord{}
+
 	if world.Hit(r, interval.New(0, math.Inf(1)), rec) {
 		direction := vec3.RandomOnHemisphere(rec.Normal)
-		return c.rayColor(ray.New(rec.P, direction), world).MulF(0.5)
+		return c.rayColor(ray.New(rec.P, direction), depth-1, world).MulF(0.5)
 	}
 
 	unitDirection := r.Dir().UnitVector()
