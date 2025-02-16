@@ -93,13 +93,13 @@ func rayColor(r ray.Ray) color.Color {
 
 func hitSphere(center point.Point, radius float64, r ray.Ray) float64 {
 	oc := center.Sub(r.Origin())
-	a := r.Dir().Dot(r.Dir())
-	b := -2.0 * r.Dir().Dot(oc)
-	c := oc.Dot(oc) - radius*radius
-	discriminant := b*b - 4*a*c
+	a := r.Dir().LengthSquared()
+	h := r.Dir().Dot(oc)
+	c := oc.LengthSquared() - radius*radius
+	discriminant := h*h - a*c
 
 	if discriminant < 0 {
 		return -1
 	}
-	return (-b - math.Sqrt(discriminant)) / (2 * a)
+	return (h - math.Sqrt(discriminant)) / a
 }

@@ -18,6 +18,10 @@ func (p Point) Vec() vec3.Vec3 {
 	return p.vec
 }
 
+func (p Point) LengthSquared() float64 {
+	return p.vec.LengthSquared()
+}
+
 func (p Point) UnitVector() vec3.Vec3 {
 	return p.vec.UnitVector()
 }
