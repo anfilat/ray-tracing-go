@@ -121,13 +121,8 @@ func (c *Camera) sampleSquare() vec3.Vec3 {
 func (c *Camera) rayColor(r ray.Ray, world hitTable.HitTable) color.Color {
 	rec := &hitTable.HitRecord{}
 	if world.Hit(r, interval.New(0, math.Inf(1)), rec) {
-		return color.New(
-			rec.Normal.Add(
-				color.NewRGB(1, 1, 1),
-			).MulF(
-				0.5,
-			),
-		)
+		direction := vec3.RandomOnHemisphere(rec.Normal)
+		return c.rayColor(ray.New(rec.P, direction), world).MulF(0.5)
 	}
 
 	unitDirection := r.Dir().UnitVector()

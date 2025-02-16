@@ -3,6 +3,8 @@ package vec3
 import (
 	"fmt"
 	"math"
+
+	"github.com/anfilat/ray-tracing-go.git/common"
 )
 
 type Vec3 struct {
@@ -11,6 +13,33 @@ type Vec3 struct {
 
 func New(e0, e1, e2 float64) Vec3 {
 	return Vec3{e: [3]float64{e0, e1, e2}}
+}
+
+func Random() Vec3 {
+	return Vec3{e: [3]float64{common.Random(), common.Random(), common.Random()}}
+}
+
+func RandomMM(min, max float64) Vec3 {
+	return Vec3{e: [3]float64{common.RandomMM(min, max), common.RandomMM(min, max), common.RandomMM(min, max)}}
+}
+
+func RandomUnitVector() Vec3 {
+	for {
+		p := RandomMM(-1, 1)
+		lenSQ := p.LengthSquared()
+		if 1e-160 < lenSQ && lenSQ <= 1 {
+			return p.DivF(math.Sqrt(lenSQ))
+		}
+	}
+}
+
+func RandomOnHemisphere(normal Vec3) Vec3 {
+	onUnitSphere := RandomUnitVector()
+	if onUnitSphere.Dot(normal) > 0 {
+		// In the same hemisphere as the normal
+		return onUnitSphere
+	}
+	return onUnitSphere.Inv()
 }
 
 func (v Vec3) X() float64 {
