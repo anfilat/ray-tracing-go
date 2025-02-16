@@ -9,8 +9,8 @@ type List struct {
 	objects []HitTable
 }
 
-func NewList() List {
-	return List{}
+func NewList() *List {
+	return &List{}
 }
 
 func (l *List) Add(object HitTable) {
