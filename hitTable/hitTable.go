@@ -14,14 +14,6 @@ type HitRecord struct {
 	FrontFace bool
 }
 
-func (h *HitRecord) Copy(rec *HitRecord) {
-	h.P = rec.P
-	h.Normal = rec.Normal
-	h.Mat = rec.Mat
-	h.T = rec.T
-	h.FrontFace = rec.FrontFace
-}
-
 func (h *HitRecord) SetFaceNormal(r ray.Ray, outwardNormal point.Point) {
 	// Sets the hit record normal vector.
 	// NOTE: the parameter `outward_normal` is assumed to have unit length.
@@ -35,5 +27,5 @@ func (h *HitRecord) SetFaceNormal(r ray.Ray, outwardNormal point.Point) {
 }
 
 type HitTable interface {
-	Hit(r ray.Ray, rayT interval.Interval, rec *HitRecord) bool
+	Hit(r ray.Ray, rayT interval.Interval) (*HitRecord, bool)
 }

@@ -23,7 +23,7 @@ func New(center point.Point, radius float64, mat hitTable.Material) Sphere {
 	}
 }
 
-func (s Sphere) Hit(r ray.Ray, rayT interval.Interval, rec *hitTable.HitRecord) bool {
+func (s Sphere) Hit(r ray.Ray, rayT interval.Interval) (*hitTable.HitRecord, bool) {
 	oc := s.center.Sub(r.Origin())
 	a := r.Dir().LengthSquared()
 	h := r.Dir().Dot(oc)
@@ -31,7 +31,7 @@ func (s Sphere) Hit(r ray.Ray, rayT interval.Interval, rec *hitTable.HitRecord) 
 
 	discriminant := h*h - a*c
 	if discriminant < 0 {
-		return false
+		return nil, false
 	}
 
 	sqrtD := math.Sqrt(discriminant)
@@ -41,19 +41,21 @@ func (s Sphere) Hit(r ray.Ray, rayT interval.Interval, rec *hitTable.HitRecord) 
 	if !rayT.Surrounds(root) {
 		root = (h + sqrtD) / a
 		if !rayT.Surrounds(root) {
-			return false
+			return nil, false
 		}
 	}
 
-	rec.T = root
-	rec.P = r.At(rec.T)
-	outwardNormal := rec.P.Sub(
+	result := &hitTable.HitRecord{
+		P:   r.At(root),
+		Mat: s.mat,
+		T:   root,
+	}
+	outwardNormal := result.P.Sub(
 		s.center,
 	).DivF(
 		s.radius,
 	)
-	rec.SetFaceNormal(r, outwardNormal)
-	rec.Mat = s.mat
+	result.SetFaceNormal(r, outwardNormal)
 
-	return true
+	return result, true
 }

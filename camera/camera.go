@@ -126,9 +126,8 @@ func (c *Camera) rayColor(r ray.Ray, depth int, world hitTable.HitTable) color.C
 		return color.NewRGB(0, 0, 0)
 	}
 
-	rec := &hitTable.HitRecord{}
-
-	if world.Hit(r, interval.New(0.001, math.Inf(1)), rec) {
+	rec, isHit := world.Hit(r, interval.New(0.001, math.Inf(1)))
+	if isHit {
 		attenuation, scattered, ok := rec.Mat.Scatter(r, rec)
 		if ok {
 			return attenuation.Mul(c.rayColor(scattered, depth-1, world))
