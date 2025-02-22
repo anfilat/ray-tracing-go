@@ -42,6 +42,10 @@ func RandomOnHemisphere(normal Vec3) Vec3 {
 	return onUnitSphere.Inv()
 }
 
+func Reflect(v, n Vec3) Vec3 {
+	return v.Sub(n.MulF(2 * v.Dot(n)))
+}
+
 func (v Vec3) X() float64 {
 	return v.e[0]
 }
@@ -64,6 +68,12 @@ func (v Vec3) LengthSquared() float64 {
 
 func (v Vec3) Length() float64 {
 	return math.Sqrt(v.LengthSquared())
+}
+
+func (v Vec3) NearZero() bool {
+	// Return true if the vector is close to zero in all dimensions.
+	const s = 1e-8
+	return (math.Abs(v.e[0]) < s) && (math.Abs(v.e[1]) < s) && (math.Abs(v.e[2]) < s)
 }
 
 func (v Vec3) UnitVector() Vec3 {

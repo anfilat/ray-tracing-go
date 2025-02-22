@@ -12,12 +12,14 @@ import (
 type Sphere struct {
 	center point.Point
 	radius float64
+	mat    hitTable.Material
 }
 
-func New(center point.Point, radius float64) Sphere {
+func New(center point.Point, radius float64, mat hitTable.Material) Sphere {
 	return Sphere{
 		center: center,
 		radius: max(0, radius),
+		mat:    mat,
 	}
 }
 
@@ -51,6 +53,7 @@ func (s Sphere) Hit(r ray.Ray, rayT interval.Interval, rec *hitTable.HitRecord) 
 		s.radius,
 	)
 	rec.SetFaceNormal(r, outwardNormal)
+	rec.Mat = s.mat
 
 	return true
 }

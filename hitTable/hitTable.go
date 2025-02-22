@@ -9,6 +9,7 @@ import (
 type HitRecord struct {
 	P         point.Point
 	Normal    point.Point
+	Mat       Material
 	T         float64
 	FrontFace bool
 }
@@ -16,6 +17,7 @@ type HitRecord struct {
 func (h *HitRecord) Copy(rec *HitRecord) {
 	h.P = rec.P
 	h.Normal = rec.Normal
+	h.Mat = rec.Mat
 	h.T = rec.T
 	h.FrontFace = rec.FrontFace
 }

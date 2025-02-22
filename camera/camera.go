@@ -129,8 +129,11 @@ func (c *Camera) rayColor(r ray.Ray, depth int, world hitTable.HitTable) color.C
 	rec := &hitTable.HitRecord{}
 
 	if world.Hit(r, interval.New(0.001, math.Inf(1)), rec) {
-		direction := rec.Normal.Add(vec3.RandomUnitVector())
-		return c.rayColor(ray.New(rec.P, direction), depth-1, world).MulF(0.5)
+		attenuation, scattered, ok := rec.Mat.Scatter(r, rec)
+		if ok {
+			return attenuation.Mul(c.rayColor(scattered, depth-1, world))
+		}
+		return color.NewRGB(0, 0, 0)
 	}
 
 	unitDirection := r.Dir().UnitVector()
