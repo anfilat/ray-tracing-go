@@ -48,3 +48,26 @@ func (m Metal) Scatter(rIn ray.Ray, rec *HitRecord) (color.Color, ray.Ray, bool)
 	scattered := ray.New(rec.P, reflected)
 	return m.Albedo, scattered, scattered.Dir().Dot(rec.Normal) > 0
 }
+
+type Dielectric struct {
+	RefractionIndex float64
+}
+
+func NewDielectric(ri float64) Dielectric {
+	return Dielectric{ri}
+}
+
+func (d Dielectric) Scatter(rIn ray.Ray, rec *HitRecord) (color.Color, ray.Ray, bool) {
+	attenuation := color.NewRGB(1, 1, 1)
+
+	ri := d.RefractionIndex
+	if rec.FrontFace {
+		ri = 1.0 / ri
+	}
+
+	unitDirection := rIn.Dir().UnitVector()
+	refracted := vec3.Refract(unitDirection, rec.Normal, ri)
+	scattered := ray.New(rec.P, refracted)
+
+	return attenuation, scattered, true
+}
