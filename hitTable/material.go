@@ -1,10 +1,12 @@
 package hitTable
 
 import (
+	"math"
+
 	"github.com/anfilat/ray-tracing-go.git/color"
+	"github.com/anfilat/ray-tracing-go.git/common"
 	"github.com/anfilat/ray-tracing-go.git/ray"
 	"github.com/anfilat/ray-tracing-go.git/vec3"
-	"math"
 )
 
 type Material interface {
@@ -72,7 +74,7 @@ func (d Dielectric) Scatter(rIn ray.Ray, rec *HitRecord) (color.Color, ray.Ray, 
 
 	cannotRefract := ri*sinTheta > 1
 	var direction vec3.Vec3
-	if cannotRefract {
+	if cannotRefract || reflectance(cosTheta, ri) > common.Random() {
 		direction = vec3.Reflect(unitDirection, rec.Normal)
 	} else {
 		direction = vec3.Refract(unitDirection, rec.Normal, ri)
@@ -80,4 +82,11 @@ func (d Dielectric) Scatter(rIn ray.Ray, rec *HitRecord) (color.Color, ray.Ray, 
 	scattered := ray.New(rec.P, direction)
 
 	return attenuation, scattered, true
+}
+
+func reflectance(cosine, rI float64) float64 {
+	// Use Schlick's approximation for reflectance.
+	r0 := (1 - rI) / (1 + rI)
+	r0 = r0 * r0
+	return r0 + (1-r0)*math.Pow(1-cosine, 5)
 }
