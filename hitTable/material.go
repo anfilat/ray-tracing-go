@@ -4,6 +4,7 @@ import (
 	"github.com/anfilat/ray-tracing-go.git/color"
 	"github.com/anfilat/ray-tracing-go.git/ray"
 	"github.com/anfilat/ray-tracing-go.git/vec3"
+	"math"
 )
 
 type Material interface {
@@ -66,8 +67,17 @@ func (d Dielectric) Scatter(rIn ray.Ray, rec *HitRecord) (color.Color, ray.Ray, 
 	}
 
 	unitDirection := rIn.Dir().UnitVector()
-	refracted := vec3.Refract(unitDirection, rec.Normal, ri)
-	scattered := ray.New(rec.P, refracted)
+	cosTheta := min(unitDirection.Inv().Dot(rec.Normal), 1)
+	sinTheta := math.Sqrt(1 - cosTheta*cosTheta)
+
+	cannotRefract := ri*sinTheta > 1
+	var direction vec3.Vec3
+	if cannotRefract {
+		direction = vec3.Reflect(unitDirection, rec.Normal)
+	} else {
+		direction = vec3.Refract(unitDirection, rec.Normal, ri)
+	}
+	scattered := ray.New(rec.P, direction)
 
 	return attenuation, scattered, true
 }
