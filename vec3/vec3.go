@@ -119,10 +119,10 @@ func (v Vec3) Dot(v2 Vec3) float64 {
 	return v.e[0]*v2.e[0] + v.e[1]*v2.e[1] + v.e[2]*v2.e[2]
 }
 
-func Cross(v1, v2 Vec3) Vec3 {
+func (v Vec3) Cross(v2 Vec3) Vec3 {
 	return Vec3{e: [3]float64{
-		v1.e[1]*v2.e[2] - v1.e[2]*v2.e[1],
-		v1.e[2]*v2.e[0] - v1.e[0]*v2.e[2],
-		v1.e[0]*v2.e[1] - v1.e[1]*v2.e[0],
+		v.e[1]*v2.e[2] - v.e[2]*v2.e[1],
+		v.e[2]*v2.e[0] - v.e[0]*v2.e[2],
+		v.e[0]*v2.e[1] - v.e[1]*v2.e[0],
 	}}
 }

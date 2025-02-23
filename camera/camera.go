@@ -15,11 +15,14 @@ import (
 )
 
 type Camera struct {
-	AspectRatio     float64 // Ratio of image width over height
-	ImageWidth      int     // Rendered image width in pixel count
-	SamplesPerPixel int     // Count of random samples for each pixel
-	MaxDepth        int     // Maximum number of ray bounces into scene
-	Vfov            float64 // Vertical view angle (field of view)
+	AspectRatio     float64     // Ratio of image width over height
+	ImageWidth      int         // Rendered image width in pixel count
+	SamplesPerPixel int         // Count of random samples for each pixel
+	MaxDepth        int         // Maximum number of ray bounces into scene
+	Vfov            float64     // Vertical view angle (field of view)
+	LookFrom        point.Point // Point camera is looking from
+	LookAt          point.Point // Point camera is looking at
+	Vup             vec3.Vec3   // Camera-relative "up" direction
 
 	imageHeight       int         // Rendered image height
 	pixelSamplesScale float64     // Color scale factor for a sum of pixel samples
@@ -27,6 +30,7 @@ type Camera struct {
 	pixel00Loc        point.Point // Location of pixel 0, 0
 	pixelDeltaU       vec3.Vec3   // Offset to pixel to the right
 	pixelDeltaV       vec3.Vec3   // Offset to pixel below
+	u, v, w           vec3.Vec3   // Camera frame basis vectors
 }
 
 func New() *Camera {
@@ -36,6 +40,9 @@ func New() *Camera {
 		SamplesPerPixel: 10,
 		MaxDepth:        10,
 		Vfov:            90,
+		LookFrom:        point.NewXYZ(0, 0, 0),
+		LookAt:          point.NewXYZ(0, 0, -1),
+		Vup:             vec3.New(0, 1, 0),
 	}
 }
 
@@ -67,18 +74,23 @@ func (c *Camera) initialize() {
 
 	c.pixelSamplesScale = 1 / float64(c.SamplesPerPixel)
 
-	c.center = point.NewXYZ(0, 0, 0)
+	c.center = c.LookFrom
 
 	// Determine viewport dimensions.
-	focalLength := 1.0
+	focalLength := c.LookFrom.Sub(c.LookAt).Length()
 	theta := common.DegreesToRadians(c.Vfov)
 	h := math.Tan(theta / 2)
 	viewportHeight := 2 * h * focalLength
 	viewportWidth := viewportHeight * float64(c.ImageWidth) / float64(c.imageHeight)
 
+	// Calculate the u,v,w unit basis vectors for the camera coordinate frame.
+	c.w = c.LookFrom.Sub(c.LookAt).UnitVector()
+	c.u = c.Vup.Cross(c.w).UnitVector()
+	c.v = c.w.Cross(c.u)
+
 	// Calculate the vectors across the horizontal and down the vertical viewport edges.
-	viewportU := point.NewXYZ(viewportWidth, 0, 0)
-	viewportV := point.NewXYZ(0, -viewportHeight, 0)
+	viewportU := c.u.MulF(viewportWidth)        // Vector across viewport horizontal edge
+	viewportV := c.v.Inv().MulF(viewportHeight) // Vector down viewport vertical edge
 
 	// Calculate the horizontal and vertical delta vectors from pixel to pixel.
 	c.pixelDeltaU = viewportU.DivF(float64(c.ImageWidth))
@@ -86,7 +98,7 @@ func (c *Camera) initialize() {
 
 	// Calculate the location of the upper left pixel.
 	viewportUpperLeft := c.center.Sub(
-		point.NewXYZ(0, 0, focalLength),
+		c.w.MulF(focalLength),
 	).Sub(
 		viewportU.DivF(2),
 	).Sub(

@@ -7,26 +7,33 @@ import (
 	"github.com/anfilat/ray-tracing-go.git/material"
 	"github.com/anfilat/ray-tracing-go.git/point"
 	"github.com/anfilat/ray-tracing-go.git/sphere"
-	"math"
+	"github.com/anfilat/ray-tracing-go.git/vec3"
 )
 
 func main() {
 	world := list.New()
 
-	r := math.Cos(math.Pi / 4)
+	materialGround := material.NewLambertian(color.NewRGB(0.8, 0.8, 0))
+	materialCenter := material.NewLambertian(color.NewRGB(0.1, 0.2, 0.5))
+	materialLeft := material.NewDielectric(1.5)
+	materialBubble := material.NewDielectric(1 / 1.5)
+	materialRight := material.NewMetal(color.NewRGB(0.8, 0.6, 0.2), 1)
 
-	materialLeft := material.NewLambertian(color.NewRGB(0, 0, 1))
-	materialRight := material.NewLambertian(color.NewRGB(1, 0, 0))
-
-	world.Add(sphere.New(point.NewXYZ(-r, 0, -1), r, materialLeft))
-	world.Add(sphere.New(point.NewXYZ(r, 0, -1), r, materialRight))
+	world.Add(sphere.New(point.NewXYZ(0, -100.5, -1), 100, materialGround))
+	world.Add(sphere.New(point.NewXYZ(0, 0, -1.2), 0.5, materialCenter))
+	world.Add(sphere.New(point.NewXYZ(-1, 0, -1), 0.5, materialLeft))
+	world.Add(sphere.New(point.NewXYZ(-1, 0, -1), 0.4, materialBubble))
+	world.Add(sphere.New(point.NewXYZ(1, 0, -1), 0.5, materialRight))
 
 	cam := camera.New()
 	cam.AspectRatio = 16.0 / 9.0
 	cam.ImageWidth = 400
 	cam.SamplesPerPixel = 100
 	cam.MaxDepth = 50
-	cam.Vfov = 90
+	cam.Vfov = 20
+	cam.LookFrom = point.NewXYZ(-2, 2, 1)
+	cam.LookAt = point.NewXYZ(0, 0, -1)
+	cam.Vup = vec3.New(0, 1, 0)
 
 	cam.Render(world)
 }
