@@ -15,10 +15,6 @@ func New(e0, e1, e2 float64) Vec3 {
 	return Vec3{e: [3]float64{e0, e1, e2}}
 }
 
-func Random() Vec3 {
-	return Vec3{e: [3]float64{common.Random(), common.Random(), common.Random()}}
-}
-
 func RandomMM(min, max float64) Vec3 {
 	return Vec3{e: [3]float64{common.RandomMM(min, max), common.RandomMM(min, max), common.RandomMM(min, max)}}
 }
@@ -33,13 +29,13 @@ func RandomUnitVector() Vec3 {
 	}
 }
 
-func RandomOnHemisphere(normal Vec3) Vec3 {
-	onUnitSphere := RandomUnitVector()
-	if onUnitSphere.Dot(normal) > 0 {
-		// In the same hemisphere as the normal
-		return onUnitSphere
+func RandomInUnitDisk() Vec3 {
+	for {
+		p := New(common.RandomMM(-1, 1), common.RandomMM(-1, 1), 0)
+		if p.LengthSquared() < 1 {
+			return p
+		}
 	}
-	return onUnitSphere.Inv()
 }
 
 func Reflect(v, n Vec3) Vec3 {
