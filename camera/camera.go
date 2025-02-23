@@ -19,6 +19,7 @@ type Camera struct {
 	ImageWidth      int     // Rendered image width in pixel count
 	SamplesPerPixel int     // Count of random samples for each pixel
 	MaxDepth        int     // Maximum number of ray bounces into scene
+	Vfov            float64 // Vertical view angle (field of view)
 
 	imageHeight       int         // Rendered image height
 	pixelSamplesScale float64     // Color scale factor for a sum of pixel samples
@@ -34,6 +35,7 @@ func New() *Camera {
 		ImageWidth:      100,
 		SamplesPerPixel: 10,
 		MaxDepth:        10,
+		Vfov:            90,
 	}
 }
 
@@ -69,7 +71,9 @@ func (c *Camera) initialize() {
 
 	// Determine viewport dimensions.
 	focalLength := 1.0
-	viewportHeight := 2.0
+	theta := common.DegreesToRadians(c.Vfov)
+	h := math.Tan(theta / 2)
+	viewportHeight := 2 * h * focalLength
 	viewportWidth := viewportHeight * float64(c.ImageWidth) / float64(c.imageHeight)
 
 	// Calculate the vectors across the horizontal and down the vertical viewport edges.
