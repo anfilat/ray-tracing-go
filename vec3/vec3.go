@@ -15,6 +15,10 @@ func New(e0, e1, e2 float64) Vec3 {
 	return Vec3{e: [3]float64{e0, e1, e2}}
 }
 
+func Random() Vec3 {
+	return Vec3{e: [3]float64{common.Random(), common.Random(), common.Random()}}
+}
+
 func RandomMM(min, max float64) Vec3 {
 	return Vec3{e: [3]float64{common.RandomMM(min, max), common.RandomMM(min, max), common.RandomMM(min, max)}}
 }
