@@ -7,7 +7,7 @@ import (
 
 	"github.com/anfilat/ray-tracing-go.git/color"
 	"github.com/anfilat/ray-tracing-go.git/common"
-	"github.com/anfilat/ray-tracing-go.git/hitTable"
+	"github.com/anfilat/ray-tracing-go.git/hit"
 	"github.com/anfilat/ray-tracing-go.git/interval"
 	"github.com/anfilat/ray-tracing-go.git/point"
 	"github.com/anfilat/ray-tracing-go.git/ray"
@@ -37,7 +37,7 @@ func New() *Camera {
 	}
 }
 
-func (c *Camera) Render(world hitTable.HitTable) {
+func (c *Camera) Render(world hit.Table) {
 	c.initialize()
 
 	fmt.Printf("P3\n%d %d\n255\n", c.ImageWidth, c.imageHeight)
@@ -120,7 +120,7 @@ func (c *Camera) sampleSquare() vec3.Vec3 {
 	return vec3.New(common.Random()-0.5, common.Random()-0.5, 0)
 }
 
-func (c *Camera) rayColor(r ray.Ray, depth int, world hitTable.HitTable) color.Color {
+func (c *Camera) rayColor(r ray.Ray, depth int, world hit.Table) color.Color {
 	// If we've exceeded the ray bounce limit, no more light is gathered.
 	if depth <= 0 {
 		return color.NewRGB(0, 0, 0)

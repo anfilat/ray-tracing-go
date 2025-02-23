@@ -1,19 +1,20 @@
-package hitTable
+package list
 
 import (
+	"github.com/anfilat/ray-tracing-go.git/hit"
 	"github.com/anfilat/ray-tracing-go.git/interval"
 	"github.com/anfilat/ray-tracing-go.git/ray"
 )
 
 type List struct {
-	objects []HitTable
+	objects []hit.Table
 }
 
-func NewList() *List {
+func New() *List {
 	return &List{}
 }
 
-func (l *List) Add(object HitTable) {
+func (l *List) Add(object hit.Table) {
 	l.objects = append(l.objects, object)
 }
 
@@ -21,8 +22,8 @@ func (l *List) Clear() {
 	l.objects = l.objects[:0]
 }
 
-func (l *List) Hit(r ray.Ray, rayT interval.Interval) (*HitRecord, bool) {
-	result := &HitRecord{}
+func (l *List) Hit(r ray.Ray, rayT interval.Interval) (*hit.Record, bool) {
+	result := &hit.Record{}
 	hitAnything := false
 	closestSoFar := rayT.Max
 
